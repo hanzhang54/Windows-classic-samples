@@ -175,7 +175,7 @@ int __cdecl wmain(int argc, _In_reads_(argc) PCWSTR argv[])
     {
         hr = CreateSpellCheckerFactory(&spellCheckerFactory);
     }
-    
+
     if (SUCCEEDED(hr))
     {
         if (argc == 1)
@@ -186,6 +186,32 @@ int __cdecl wmain(int argc, _In_reads_(argc) PCWSTR argv[])
         {
             PCWSTR const languageTag = *(argv + 1);
             hr = StartSpellCheckingSession(spellCheckerFactory, languageTag);
+        }
+        else if (argc == 3)
+        {
+            PCWSTR const languageTag = *(argv + 1);
+            PCWSTR const userDictionary = *(argv + 2);
+            IUserDictionariesRegistrar* registrar = nullptr;
+            hr = spellCheckerFactory->QueryInterface(IID_PPV_ARGS(&registrar));
+            if (SUCCEEDED(hr))
+            {
+                hr = registrar->RegisterUserDictionary(userDictionary, languageTag);
+                if (SUCCEEDED(hr))
+                {
+                    wprintf(L"Registered user dictionary: %s, %s\n", userDictionary, languageTag);
+                }
+                else
+                {
+                    wprintf(L"Failed to register user dictionary: %s, %s\n", userDictionary, languageTag);
+                }
+            }
+
+            hr = StartSpellCheckingSession(spellCheckerFactory, languageTag);
+
+            if (registrar != nullptr)
+            {
+                registrar->UnregisterUserDictionary(userDictionary, languageTag);
+            }
         }
         else
         {
