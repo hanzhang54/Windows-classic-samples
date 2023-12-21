@@ -135,3 +135,20 @@ inline HRESULT CheckAsYouTypeCommand(_In_ ISpellChecker* spellChecker, _In_ PCWS
     }
     return hr;
 }
+
+inline HRESULT RemoveCommand(_In_ ISpellChecker* spellChecker, _In_ PCWSTR buffer)
+{
+    wchar_t word[MAX_PATH];
+    HRESULT hr = ReadSingleWord(buffer, ARRAYSIZE(word), word);
+    if (SUCCEEDED(hr))
+    {
+        // ISpellChecker2::Remove method can remove a word that was previously
+        // added by ISpellChecker.Add with any spell checker or
+        // set by ISpellChecker.Ignore with the same spell checker
+        ISpellChecker2* spellChecker2 = nullptr;
+        hr = spellChecker->QueryInterface(IID_PPV_ARGS(&spellChecker2));
+        hr = spellChecker2->Remove(word);
+    }
+    PrintErrorIfFailed(L"RemoveCommand", hr);
+    return hr;
+}

@@ -215,7 +215,7 @@ int __cdecl wmain(int argc, _In_reads_(argc) PCWSTR argv[])
 
             if (registrar != nullptr)
             {
-                registrar->UnregisterUserDictionary(userDictionary, languageTag);
+                hr = registrar->UnregisterUserDictionary(userDictionary, languageTag);
             }
         }
         else
